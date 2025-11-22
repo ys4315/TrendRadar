@@ -41,15 +41,15 @@ notification:
   # 适用场景：
   #   - 只想在工作日白天接收推送（如 09:00-18:00）
   #   - 希望在晚上固定时间收到汇总（如 20:00-22:00）
+  
+  # 推送时间窗口 - 建议设置为交易时间
   push_window:
-    enabled: false  # 是否启用推送时间窗口控制，默认关闭
-    # 注意：GitHub Actions 执行时间不稳定，时间范围建议至少留足 2 小时
-    # 如果想要精准的定时推送，建议使用 Docker 部署在个人服务器上
+    enabled: true
     time_range:
-      start: "20:00"  # 推送时间窗口开始（北京时间）
-      end: "22:00"    # 推送时间窗口结束（北京时间）
-    once_per_day: true  # 每天在时间窗口内只推送一次，如果 false，则窗口内每次执行都推送
-    push_record_retention_days: 7  # 推送记录保留天数
+      start: "09:00"  # 开盘前
+      end: "23:30"    # 收盘后
+    once_per_day: false  # 盘中可能有多次推送
+    push_record_retention_days: 7
 
   # ⚠️⚠️⚠️ 重要安全警告 / IMPORTANT SECURITY WARNING ⚠️⚠️⚠️
   #
@@ -70,7 +70,7 @@ notification:
   webhooks:
     feishu_url: "" # 飞书机器人的 webhook URL
     dingtalk_url: "" # 钉钉机器人的 webhook URL
-    wework_url: "" # 企业微信机器人的 webhook URL
+    wework_url: "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=49674bbe-5cad-4e1e-a28f-26995806dcbd" # 企业微信机器人的 webhook URL
     wework_msg_type: "markdown" # 企业微信消息类型：markdown(群机器人) 或 text(个人微信应用)
     telegram_bot_token: "" # Telegram Bot Token
     telegram_chat_id: "" # Telegram Chat ID
@@ -83,33 +83,30 @@ notification:
     ntfy_topic: "" # ntfy主题名称
     ntfy_token: "" # ntfy访问令牌（可选，用于私有主题）
 
-# 用于让关注度更高的新闻在更前面显示，即用算法重新组合不同平台的热搜排序形成你侧重的热搜，合起来是 1 就行
+# 权重配置 - 让热度高的财经新闻排在前面
 weight:
-  rank_weight: 0.6 # 排名权重
-  frequency_weight: 0.3 # 频次权重
-  hotness_weight: 0.1 # 热度权重
+  rank_weight: 0.5      # 排名权重
+  frequency_weight: 0.3 # 频次权重（多平台出现的新闻更重要）
+  hotness_weight: 0.2   # 热度权重
 
-# name 可以定义任意名称，只具有显示作用，即使项目运行了几天后，忽然改掉 name 也不会影响代码的正常运行
+# 平台配置 - 只保留财经相关平台
 platforms:
-  - id: "toutiao"
-    name: "今日头条"
-  - id: "baidu"
-    name: "百度热搜"
+  # === 核心财经平台(必选) ===
   - id: "wallstreetcn-hot"
-    name: "华尔街见闻"
-  - id: "thepaper"
-    name: "澎湃新闻"
-  - id: "bilibili-hot-search"
-    name: "bilibili 热搜"
+    name: "华尔街见闻 最热"
+  - id: "wallstreetcn-quick"
+    name: "华尔街见闻 快讯"
+  - id: "wallstreetcn-news"
+    name: "华尔街见闻 最新"
   - id: "cls-hot"
     name: "财联社热门"
-  - id: "ifeng"
-    name: "凤凰网"
-  - id: "tieba"
-    name: "贴吧"
-  - id: "weibo"
-    name: "微博"
-  - id: "douyin"
-    name: "抖音"
-  - id: "zhihu"
-    name: "知乎"
+
+  # === 综合财经平台 ===
+  - id: "gelonghui"
+    name: "格隆汇"
+  - id: "xueqiu"
+    name: "雪球"
+  - id: "jin10"
+    name: "金十数据"
+  - id: "fastbull"
+    name: "快讯通"
